@@ -4,8 +4,6 @@
 #include <ctype.h>
 #include "a3q1_header.h"
 
-// testing github
-
 Variable variables[10];
 int varCount = 0; 
 
