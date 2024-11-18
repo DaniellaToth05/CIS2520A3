@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include "a3q1_header.h"
 
+
 // The main function drives the menu selection loop.
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -47,6 +48,22 @@ int main(int argc, char *argv[]) {
             default: printf("Please enter a valid choice.\n");
         }
     } while (choice != 5);
+
+    while(root != NULL) {
+        Node *temp = root; // store the current node in a temporary variable
+
+        if (root->left != NULL) {
+            root = root->left; // move to the left node
+        } 
+        else if (root->right != NULL) {
+            root = root->right; // move to the right node
+        } 
+        else {
+            root = NULL; // set the root to null
+        }
+        free(temp); // free the memory of the current node
+    }
+
 
     return 0;
 }
