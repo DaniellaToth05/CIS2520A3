@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
             case 2: inorder(root); printf("\n"); break;
             case 3: postorder(root); printf("\n"); break;
             case 4: 
+                getchar(); 
                 varCount = 0; // resetting for each loop
                 promptVariables(root);
                 printf("Result: %.2f\n", calculate(root));
