@@ -11,7 +11,43 @@ int varCount = 0;
 
 // The createNode function allocates memory to the tree and creates a new node using the given data before returning the node.
 Node* createNode(char *data){
-	return NULL;
+	
+	// check if data is empty or null
+    if (data == NULL || strlen(data) == 0) {
+        printf("Error: Cannot create a node with empty or null data.\n");
+        return NULL;
+    }
+    
+    Node* newNode = (Node*)malloc(sizeof(Node)); // allocate memory for the new node
+
+	// check if memory allocation failed
+    if (newNode == NULL) {
+        printf("Error: Memory allocation failed for node.\n");
+        exit(1);
+    }
+    
+    char *copy = (char*)malloc(strlen(data) + 1); // allocate memory for the data
+
+	// check if memory allocation failed
+    if (copy == NULL) {
+        printf("Error: Memory allocation failed for node data.\n");
+        free(newNode); // free the memory allocated for the node
+        exit(1);
+    }
+    
+    strcpy(copy, data); // copy the data to the new memory location	
+
+    
+    newNode->left = NULL; // set the left child to NULL
+    newNode->right = NULL; // set the right child to NULL
+    
+	strcpy(newNode->data, copy); // copy the data to the node
+
+    free(copy); // free the memory allocated for the data
+
+    printf("Node created with data: %s\n", newNode->data); 
+
+    return newNode; // return the new node
 }
 
 
