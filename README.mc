@@ -21,7 +21,8 @@ Explain the purpose of the program and what it accomplishes.
 Did you use any resources (for example book, notes etc) in this assignment?
     
     Resources I used for Question 1 include :
-      https://www.geeksforgeeks.org/expression-tree/ 
+      https://www.geeksforgeeks.org/expression-tree/
+      https://craftinginterpreters.com/parsing-expressions.html  
 
     Resources I used for Question 2 include:
      
