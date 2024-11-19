@@ -25,7 +25,7 @@ Did you use any resources (for example book, notes etc) in this assignment?
       https://craftinginterpreters.com/parsing-expressions.html  
 
     Resources I used for Question 2 include:
-     
+      Slides 22 and 23 of the "Heap" lecture slides for pseudocode to complete the down heap function
      
 ## Implementation
 Is the assignment complete? If not, mention what part of the assignment is missing or incomplete.
