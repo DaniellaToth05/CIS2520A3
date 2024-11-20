@@ -36,14 +36,26 @@ int main(int argc, char *argv[]) {
         scanf("%d", &choice);
 
         switch (choice) {
-            case 1: preorder(root); printf("\n"); break;
-            case 2: inorder(root); printf("\n"); break;
-            case 3: postorder(root); printf("\n"); break;
+            case 1: 
+                printf("\nPreorder: \n");
+                preorder(root); 
+                printf("\n"); 
+                break;
+            case 2: 
+                printf("\nInorder: \n");
+                inorder(root); 
+                printf("\n"); 
+                break;
+            case 3: 
+                printf("\nPostorder: \n");
+                postorder(root); 
+                printf("\n"); 
+                break;
             case 4: 
                 getchar(); 
                 varCount = 0; // resetting for each loop
                 promptVariables(root);
-                printf("Result: %.2f\n", calculate(root));
+                printf("\nResult: %.2f\n", calculate(root));
                 break;
             case 5: break;
             default: printf("Please enter a valid choice.\n");

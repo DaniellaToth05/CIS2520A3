@@ -14,7 +14,7 @@ Node* createNode(char *data){
 	
 	// check if data is empty or null
     if (data == NULL || strlen(data) == 0) {
-        printf("Error: Cannot create a node with empty or null data.\n");
+        printf("\nError, node could not be created with empty or null data.\n");
         return NULL;
     }
     
@@ -22,7 +22,7 @@ Node* createNode(char *data){
 
 	// check if memory allocation failed
     if (newNode == NULL) {
-        printf("Error: Memory allocation failed for node.\n");
+        printf("\nError, memory allocation failed for node.\n");
         exit(1);
     }
     
@@ -30,7 +30,7 @@ Node* createNode(char *data){
 
 	// check if memory allocation failed
     if (copy == NULL) {
-        printf("Error: Memory allocation failed for node data.\n");
+        printf("\nError, memory allocation failed for node data.\n");
         free(newNode); // free the memory allocated for the node
         exit(1);
     }
@@ -45,11 +45,16 @@ Node* createNode(char *data){
 
     free(copy); // free the memory allocated for the data
 
-    printf("Node created with data: %s\n", newNode->data); 
+    //printf("Node created with data: %s\n", newNode->data); 
 
     return newNode; // return the new node
 }
 
+/* 	references used for this function:
+		* https://www.geeksforgeeks.org/expression-tree/
+		* https://craftinginterpreters.com/parsing-expressions.html  
+		* https://stackoverflow.com/questions/11703082/parsing-math-expression-in-c 
+*/
 Node* parseExpression(char *expr) {
 
 	Node *newNode; // create a new node
@@ -58,6 +63,7 @@ Node* parseExpression(char *expr) {
     if (expr == NULL || strlen(expr) == 0) {
         return NULL;
     }
+
 
     int parenthesesCount = 0; // count the number of parentheses
     int operatorPosition = -1; // position of the operator
@@ -119,23 +125,45 @@ Node* parseExpression(char *expr) {
     }
 
 	// check if an operator was found
-    if (operatorPosition != -1) { 
+	if (operatorPosition != -1) { 
 
-		// create a new node with the operator
-        newNode = createNode((char[]){expr[operatorPosition], '\0'}); 
+		newNode = (Node *)malloc(sizeof(Node)); // allocate memory for the new node
 
-		// set the operator to null
-        expr[operatorPosition] = '\0'; 
+		// check if memory allocation failed
+		if (newNode == NULL) {
+			printf("Error, memory allocation failed.\n");
+			exit(1);
+		}
 
-        newNode->left = parseExpression(expr); // parse the left expression
-        newNode->right = parseExpression(expr + operatorPosition + 1); // parse the right expression
-    } 
+		newNode->data[0] = expr[operatorPosition]; // set the data of the node to the operator
+		newNode->data[1] = '\0';  // set the null terminator
+
+		expr[operatorPosition] = '\0';	// set the operator to null
+		
+		newNode->left = parseExpression(expr); // parse the left expression
+		newNode->right = parseExpression(expr + operatorPosition + 1); // parse the right expression 
+	} 
+	
 	// if no operator was found
 	else { 
-        newNode = createNode(expr); // create a new node with the expression
-    }
+		newNode = (Node *)malloc(sizeof(Node)); // allocate memory for the new node
+		
+		// check if memory allocation failed
+		if (newNode == NULL) {
+			printf("Error, memory allocation failed.\n"); 
+			exit(1);
+		}
+		
+		strncpy(newNode->data, expr, sizeof(newNode->data) - 1); // copy the expression to the data of the node
+		newNode->data[sizeof(newNode->data) - 1] = '\0'; // set the null terminator
 
-    return newNode;	// return the new node
+		
+		newNode->left = NULL; // set the left child to null
+		newNode->right = NULL; // set the right child to null
+	} 
+
+	
+	return newNode; // return 
 }
 
 
@@ -160,16 +188,14 @@ void inorder(Node *root){
 	// if the root is not null
 	if(root != NULL){
 		
-		if(root->left != NULL || root->right != NULL){
-			printf("("); // print the opening parenthesis
-		}
+		printf("("); // print the opening parenthesis
 		
 		inorder(root->left); // recursively print the left node
 		printf("%s", root->data); // print the data of the node
 		inorder(root->right); // recursively print the right node
-		if(root->left != NULL || root->right != NULL){
-			printf(")"); // print the closing parenthesis
-		}
+		
+		printf(")"); // print the closing parenthesis
+		
 	}
 	else {
 		return; // return if the root is null
@@ -209,16 +235,16 @@ void promptVariables(Node *root){
 
 		// if the count of variables is greater than or equal to 10
         if (varCount >= 10) {
-            printf("Error: Too many variables.\n"); // print an error message
+            printf("Error, there are too many variables.\n"); // print an error message
             return;
         }
 
         // ask the user for the value of the variable
-        printf("Enter value for %s: ", root->data);
+        printf("Please enter a value for %s: ", root->data);
 
 		// check if the input is valid
         while (scanf("%f", &variables[varCount].value) != 1) {
-            printf("Invalid input. Enter a valid value for %s: ", root->data);
+            printf("Invalid input, please enter a valid value for %s: ", root->data);
             while (getchar() != '\n');  
         }
 
@@ -234,6 +260,12 @@ void promptVariables(Node *root){
 
 // // The calculate function calculates the expression and returns its result. Division by 0 and/or other error scenarios should be checked.
 float calculate(Node *root){
+	float sum;
+	float difference;
+	float product;
+	float division;
+	float num;
+
 	// check if the root is null
     if (root == NULL) {
         return 0.0; 
@@ -254,13 +286,16 @@ float calculate(Node *root){
                     return variables[i].value; 
                 }
             }
+			printf("Error, the variable '%s' could not be found.\n", root->data); // print an error message
+			return 0.0; // return 0
         } 
 		else if (isdigit(root->data[0]) || root->data[0] == '.') { // check if data is a number
-            return atof(root->data); // return the number
+            num = atof(root->data); // convert the data to a float
+			return num; // return the number
         } 
 		else {
-            printf("Error: Invalid data '%s'.\n", root->data); // print an error message
-            return 0.0;
+            printf("Error, invalid data '%s'.\n", root->data); // print an error message
+            return 0.0; // return 0
         }
     }
 
@@ -271,31 +306,31 @@ float calculate(Node *root){
     // check if the operator is addition, subtraction, multiplication, or division
 	// if operation is addition
     if (strcmp(root->data, "+") == 0) {
-		float sum = leftValue + rightValue; // calculate the sum
+		sum = leftValue + rightValue; // calculate the sum
         return sum; // return the sum
     } 
 	// if operation is subtraction
 	else if (strcmp(root->data, "-") == 0) {
-        float difference = leftValue - rightValue; // calculate the difference
+        difference = leftValue - rightValue; // calculate the difference
 		return difference; // return the difference
     } 
 	// if operation is multiplication
 	else if (strcmp(root->data, "*") == 0) {
-        float product = leftValue * rightValue; // calculate the product
+        product = leftValue * rightValue; // calculate the product
 		return product; // return the product
     } 
 	// if operation is division
 	else if (strcmp(root->data, "/") == 0) {
         // check if the right value is 0
 		if (rightValue == 0.0) { 
-            printf("Error: Division by zero.\n"); // print an error message
+            printf("Error, cannot divide by zero.\n"); // print an error message
             return 0.0;
         }
-		float division = leftValue / rightValue; // calculate the division
+		division = leftValue / rightValue; // calculate the division
         return division; // return the division
     } 
 	else { // if the operator is not valid
-        printf("Error: Unknown operator '%s'.\n", root->data); // print an error message
+        printf("Error, found an unknown operator '%s'.\n", root->data); // print an error message
         return 0.0;
     }
 }
