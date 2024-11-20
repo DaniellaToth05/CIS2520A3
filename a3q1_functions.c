@@ -50,155 +50,253 @@ Node* createNode(char *data){
     return newNode; // return the new node
 }
 
+Node* parseExpression(char *expr) {
 
-// The parseExpression function parses the expression string passed in from command line, stores the information in a new node, and returns the root node of the tree.
-Node* parseExpression(char *expr){
-
-	int length = strlen(expr); // get the length of the expression
-	int balanceCount; // variable to keep track of the balance of parentheses
+	Node *newNode; // create a new node
 
 	// check if the expression is empty
-	if(length == 0){
-		printf("Error: Expression is empty.\n");
-		return NULL;
-	}
+    if (expr == NULL || strlen(expr) == 0) {
+        return NULL;
+    }
 
-	// check if the expression is a single variable (base case)
-	if(expr[0] == '(' && expr[length - 1] == ')'){
+    int parenthesesCount = 0; // count the number of parentheses
+    int operatorPosition = -1; // position of the operator
+    int length = strlen(expr); // length of the expression
 
-		balanceCount = 0; // reset the balance count
+    
+	// check if the expression is enclosed in parentheses
+    if (expr[0] == '(' && expr[length - 1] == ')') {
+        int valid = 1; // variable to check if the expression is valid
 
-		// loop through the expression
-		for (int i = 0; i < length - 1; i++){
-			// check if the character is an open parenthesis
-			if (expr[i] == '('){
-				balanceCount++; // increment the balance count
-			}
+		// check if the parentheses are balanced
+        for (int i = 1; i < length - 1; i++) {
+            if (expr[i] == '(') { // if the character is an opening parenthesis
+                parenthesesCount++; // increment the count of parentheses
+            } 
+			else if (expr[i] == ')') { // if the character is a closing parenthesis
+                parenthesesCount--; // decrement the count of parentheses
+            }
+			// if the count of parentheses is less than 0
+            if (parenthesesCount < 0) {
+                valid = 0; // set valid to 0
+                break;
+            }
+        }
+		// if the expression is valid and the count of parentheses is 0
+        if (valid && parenthesesCount == 0) {
+            
+			// remove the parentheses by shifting the characters to the left
+            for (int i = 0; i < length - 2; i++) {
+                expr[i] = expr[i + 1]; // shift 
+            }
+			// set the last character to null
+            expr[length - 2] = '\0';
+            length -= 2; // decrement the length
+        }
+    }
 
-			// check if the character is a close parenthesis
-			else if (expr[i] == ')'){
-				balanceCount--; // decrement the balance count
-			}
 
-			// check if the balance count is 0
-			if (balanceCount == 0){
-				break; // break the loop
-			}
-		}
-
-		// if balance count is 0
-		if (balanceCount == 0){
-			char temp[length - 1]; // create a temporary array to store the expression
-			strncpy(temp, expr + 1, length - 2); // copy the expression to the temporary array
-			temp[length - 2] = '\0'; // set the last character to null
-			return parseExpression(temp); // return the parsed temporary expression
-		}
-	}
-
-	int isOperator = 0; // variable to check if the expression contains an operator
-
-	// loop through the expression
-	for(int i = 0; expr[i] != '\0'; i++){
-
-		// check if the character is an operator
-		if(expr[i] == '+' || expr[i] == '-' || expr[i] == '*' || expr[i] == '/'){
-			isOperator = 1; // set the isOperator variable to 1
-			break;
-		}
-	}
-
-	// if the expression does not contain an operator
-	if(!isOperator){
-		Node* notOperator = createNode(expr); // create a node with the expression
-		return notOperator; // return it
-	}
-
-	balanceCount = 0; // reset the balance count
-	char *operatorPosition = NULL; // variable to store the position of the operator
-	int operatorPrecedence = -1; // variable to store the precedence of the operator
-
-	// loop through the expression
-	for(int i = 0; expr[i] != '\0'; i++){
-
-		// check if the character is an open parenthesis
-		if (expr[i] == '('){
-			balanceCount++; // increment the balance count
-		}
-		// check if the character is a close parenthesis
-		else if(expr[i] == ')'){
-			balanceCount--; // decrement the balance count
-		}
-		// check if the balance count is 0
-		else if(balanceCount == 0){
-			int currentPrecedence = -1; // variable to store the current precedence
-
+    parenthesesCount = 0; // reset the count of parentheses
+	// loop through the expression from right to left
+    for (int i = length - 1; i >= 0; i--) { 
+        if (expr[i] == ')') { // if the character is a closing parenthesis
+            parenthesesCount++; // increment the count of parentheses
+        } 
+		else if (expr[i] == '(') { // if the character is an opening parenthesis
+            parenthesesCount--; // decrement the count of parentheses
+        } 
+		else if (parenthesesCount == 0) { // if the count of parentheses is 0
 			// check if the character is a plus or minus operator
-			if ((expr[i] == '+' || expr[i] == '-')){
-				currentPrecedence = 0; // set the current precedence to 0 (lowest)
-			}
+            if (expr[i] == '+' || expr[i] == '-') {
+                operatorPosition = i; // set the operator position
+                break; 
+            } 
+			// otherwise if the character is a multiplication or division operator
+			else if ((expr[i] == '*' || expr[i] == '/') && operatorPosition == -1) {
+                operatorPosition = i; // set the operator position
+            }
+        }
+    }
 
-			// check if the character is a multiplication or division operator
-			else if ((expr[i] == '*' || expr[i] == '/')){
-				currentPrecedence = 1; // set the current precedence to 1 (highest)
-			}
+	// check if an operator was found
+    if (operatorPosition != -1) { 
 
-			// check if the current precedence is greater than the operator precedence
-			if (currentPrecedence > operatorPrecedence){
-				operatorPosition = &expr[i]; // set the operator position to the current character
-				operatorPrecedence = currentPrecedence; // set the operator precedence to the current precedence
-			}
-		}
-	}
-	// check if the operator position is null
-	if(operatorPosition == NULL){
-		printf("Error: No operator found.\n"); // print an error message
-		return NULL;
-	}
+		// create a new node with the operator
+        newNode = createNode((char[]){expr[operatorPosition], '\0'}); 
 
-	char leftExpression[100]; // variable to store the left expression
-	char rightExpression[100]; // variable to store the right expression
+		// set the operator to null
+        expr[operatorPosition] = '\0'; 
 
-	strncpy(leftExpression, expr, operatorPosition - expr); // copy the left expression to the leftExpression variable
+        newNode->left = parseExpression(expr); // parse the left expression
+        newNode->right = parseExpression(expr + operatorPosition + 1); // parse the right expression
+    } 
+	// if no operator was found
+	else { 
+        newNode = createNode(expr); // create a new node with the expression
+    }
 
-	leftExpression[operatorPosition - expr] = '\0'; // set the last character to null
-
-	strcpy(rightExpression, operatorPosition + 1); // copy the right expression to the rightExpression variable
-
-	// create a node with the operator
-	char stringOperator[2];
-	stringOperator[0] = *operatorPosition; // set the first character to the operator
-	stringOperator[1] = '\0'; // set the last character to null
-
-	Node *root = createNode(stringOperator); // create a node with the operator
-
-	root->left = parseExpression(leftExpression); // parse the left expression and set it as the left child of the root
-	root->right = parseExpression(rightExpression); // parse the right expression and set it as the right child of the root
-
-	return root; // return the root
+    return newNode;	// return the new node
 }
 
 
 // The preOrder function prints tree nodes in preorder traversal.
 void preorder(Node *root){
+
+	// if the root is not null
+	if(root == NULL){
+		return; // return if the root is null
+		
+	}
+	else {
+		printf("%s ", root->data); // print the data of the node
+		preorder(root->left); // recursively print the left node
+		preorder(root->right); // recursively print the right node
+	}
 }
 
 
 // The inOrder function prints tree nodes in inorder traversal fully parenthesized.
 void inorder(Node *root){
+	// if the root is not null
+	if(root != NULL){
+		
+		if(root->left != NULL || root->right != NULL){
+			printf("("); // print the opening parenthesis
+		}
+		
+		inorder(root->left); // recursively print the left node
+		printf("%s", root->data); // print the data of the node
+		inorder(root->right); // recursively print the right node
+		if(root->left != NULL || root->right != NULL){
+			printf(")"); // print the closing parenthesis
+		}
+	}
+	else {
+		return; // return if the root is null
+	}
 }
 
 
 // The postOrder function prints tree nodes in postorder traversal.
 void postorder(Node *root){
+	// if the root is not null
+	if(root != NULL){
+		postorder(root->left); // recursively print the left node
+		postorder(root->right); // recursively print the right node
+		printf("%s ", root->data); // print the data of the node
+	}
+	else {
+		return; // return if the root is null
+	}
 }
 
 
 // The promptVariables function prompts the user to assign values to each variable found in the expression tree. The values should be stored in the Variables struct.
 void promptVariables(Node *root){
+ 	
+	// check if the root is null
+	if (root == NULL) {
+        return; 
+    }
+
+    // check if the node contains a variable
+    if (isalpha(root->data[0])) {
+        for (int i = 0; i < varCount; i++) {
+            if (strcmp(variables[i].varName, root->data) == 0) { // check if the variable is already in the array
+                return; 
+            }
+        }
+
+		// if the count of variables is greater than or equal to 10
+        if (varCount >= 10) {
+            printf("Error: Too many variables.\n"); // print an error message
+            return;
+        }
+
+        // ask the user for the value of the variable
+        printf("Enter value for %s: ", root->data);
+
+		// check if the input is valid
+        while (scanf("%f", &variables[varCount].value) != 1) {
+            printf("Invalid input. Enter a valid value for %s: ", root->data);
+            while (getchar() != '\n');  
+        }
+
+        // add the variable to the array
+        strcpy(variables[varCount].varName, root->data);
+        varCount++; // increment the variable count
+    }
+
+    promptVariables(root->left); // recursively prompt the left node
+    promptVariables(root->right); // recursively prompt the right node
 }
 
 
-// The calculate function calculates the expression and returns its result. Division by 0 and/or other error scenarios should be checked.
+// // The calculate function calculates the expression and returns its result. Division by 0 and/or other error scenarios should be checked.
 float calculate(Node *root){
-	return 0;
+	// check if the root is null
+    if (root == NULL) {
+        return 0.0; 
+    }
+
+    // check if the root is a leaf node
+    if (root->left == NULL && root->right == NULL) {
+
+		// check if data is a variable
+        if (isalpha(root->data[0])) { 
+            
+			// loop through the variables array
+            for (int i = 0; i < varCount; i++) {
+
+				// check if the variable is in the variables array
+                if (strcmp(variables[i].varName, root->data) == 0) {
+					// return the value of the variable
+                    return variables[i].value; 
+                }
+            }
+        } 
+		else if (isdigit(root->data[0]) || root->data[0] == '.') { // check if data is a number
+            return atof(root->data); // return the number
+        } 
+		else {
+            printf("Error: Invalid data '%s'.\n", root->data); // print an error message
+            return 0.0;
+        }
+    }
+
+    
+    float leftValue = calculate(root->left); // calculate the left value
+    float rightValue = calculate(root->right); // calculate the right value
+
+    // check if the operator is addition, subtraction, multiplication, or division
+	// if operation is addition
+    if (strcmp(root->data, "+") == 0) {
+		float sum = leftValue + rightValue; // calculate the sum
+        return sum; // return the sum
+    } 
+	// if operation is subtraction
+	else if (strcmp(root->data, "-") == 0) {
+        float difference = leftValue - rightValue; // calculate the difference
+		return difference; // return the difference
+    } 
+	// if operation is multiplication
+	else if (strcmp(root->data, "*") == 0) {
+        float product = leftValue * rightValue; // calculate the product
+		return product; // return the product
+    } 
+	// if operation is division
+	else if (strcmp(root->data, "/") == 0) {
+        // check if the right value is 0
+		if (rightValue == 0.0) { 
+            printf("Error: Division by zero.\n"); // print an error message
+            return 0.0;
+        }
+		float division = leftValue / rightValue; // calculate the division
+        return division; // return the division
+    } 
+	else { // if the operator is not valid
+        printf("Error: Unknown operator '%s'.\n", root->data); // print an error message
+        return 0.0;
+    }
 }
+
