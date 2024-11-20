@@ -50,6 +50,8 @@ Node* createNode(char *data){
     return newNode; // return the new node
 }
 
+
+// The parseExpression function parses the expression string passed in from command line, stores the information in a new node, and returns the root node of the tree.
 /* 	references used for this function:
 		* https://www.geeksforgeeks.org/expression-tree/
 		* https://craftinginterpreters.com/parsing-expressions.html  
