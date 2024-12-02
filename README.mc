@@ -3,7 +3,6 @@
 ## Student Information 
 Name : Daniella Toth
 
-Student Number : 1261398
 
 ## Assignment Overview
 What is the assignment about?  
